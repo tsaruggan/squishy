@@ -5,7 +5,8 @@ def count_symbols(image):
     pixels = image.getdata()
     values = chain.from_iterable(pixels)
     counts = Counter(values).items()
-    return sorted(counts, key=lambda x:x[::-1])
+    # return sorted(counts, key=lambda x:x[::-1])
+    return counts
 
 def build_tree(counts) :
     nodes = [entry[::-1] for entry in counts] # Reverse each (symbol,count) tuple
@@ -14,7 +15,7 @@ def build_tree(counts) :
         theRest = nodes[2:] # all the others
         combFreq = leastTwo[0][0] + leastTwo[1][0]  # the branch points freq
         nodes = theRest + [(combFreq, leastTwo)] # add branch point to the end
-        nodes.sort() # sort it into place
+        nodes.sort(key=lambda t: t[0]) # sort it into place
     return nodes[0] # Return the single tree inside the list
 
 def trim_tree(tree) :

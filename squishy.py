@@ -1,7 +1,6 @@
 from PIL import Image, ImageChops
 import sys, string
 import copy
-import time
 
 from IO import Input, Output
 from codec import Encoder, Decoder
@@ -44,6 +43,9 @@ class Squishy:
     def decompress(self,in_file_name, out_file_name = ''):
         if (out_file_name == ''):
             out_file_name = in_file_name.split('.')[0] + ".png"
+        else:
+            out_file_name = out_file_name.split('.')[0] + ".png"
+
         print('Decompressing "%s" -> "%s"' % (in_file_name, out_file_name))
 
         print('Reading...')
