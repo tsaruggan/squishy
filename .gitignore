@@ -5,6 +5,8 @@
 ### Python ###
 .DS_Store
 demo/.DS_Store
+test/__pycache__
+test/.pytest_cache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
