@@ -8,61 +8,87 @@ from huffman import *
  
 class Squishy:
     def compress(self,in_file_name, out_file_name = ''):
+        # assign output filename
         if (out_file_name == ''):
             out_file_name = in_file_name.split('.')[0] + ".bin"
+        
         print('Compressing "%s" -> "%s"' % (in_file_name, out_file_name))
         image = Image.open(in_file_name)
-        print('Image shape: (height=%d, width=%d)' % (image.height, image.width))
+        print('Image dimensions: (height=%dpx, width=%dpx)' % (image.height, image.width))
         size_raw = raw_size(image.height, image.width)
-        print('RAW image size: %d bytes' % size_raw)
+        print('RAW size: %d bytes' % size_raw)
 
         counts = count_symbols(image)
         tree = build_tree(counts)
         codes = assign_binary_patterns(tree)
-        size_estimate = compressed_size(counts, codes)
-        print('Estimated size: %d bytes' % size_estimate)
+        size_compressed = compressed_size(counts, codes)
+        print('Compressed size: %d bytes' % size_compressed)
 
         print('Writing...')
         stream = Output(out_file_name)
         encoder = Encoder(stream)
-        print('* Header offset: %d' % stream.bytes_written)
+
+        # encode image dimensions
         encoder.encode_header(image)
-        stream.flush() # Ensure next chunk is byte-aligned
-        print('* Tree offset: %d' % stream.bytes_written)
+        stream.flush()
+        size_header = stream.bytes_written
+        print('* Header: %d bytes' % size_header)
+
+        # encode Huffman table 
         encoder.encode_tree(tree)
-        stream.flush() # Ensure next chunk is byte-aligned
-        print('* Pixel offset: %d' % stream.bytes_written)
+        stream.flush()
+        size_tree = stream.bytes_written - size_header
+        print('* Tree: %d bytes' % size_tree)
+        
+        # encode image pixel data
         encoder.encode_pixels(image, codes)
         stream.close()
-
-        size_real = stream.bytes_written
-        print('Wrote %d bytes.' % size_real)
-        print('Compression ratio: %0.2f' % (float(size_raw) / size_real))
+        size_pixels = stream.bytes_written - size_tree - size_header
+        print('* Pixels: %d bytes' % size_pixels)
+        
+        size_wrote = stream.bytes_written
+        print('Compressed %d bytes.' % size_wrote)
+        space_saving = 100 * float(1 - size_wrote / size_raw)
+        print('Memory reduced by %0.2f' % (space_saving), '%.')
     
     def decompress(self,in_file_name, out_file_name = ''):
+        # assign output filename
         if (out_file_name == ''):
             out_file_name = in_file_name.split('.')[0] + ".png"
         else:
             out_file_name = out_file_name.split('.')[0] + ".png"
 
         print('Decompressing "%s" -> "%s"' % (in_file_name, out_file_name))
-
         print('Reading...')
         stream = Input(in_file_name)
         decoder = Decoder(stream)
-        print('* Header offset: %d' % stream.bytes_read)
-        height, width = decoder.decode_header()
-        stream.flush() # Ensure next chunk is byte-aligned
-        print('* Tree offset: %d' % stream.bytes_read)    
-        trimmed_tree = decoder.decode_tree()
-        stream.flush() # Ensure next chunk is byte-aligned
-        print('* Pixel offset: %d' % stream.bytes_read)
-        image = decoder.decode_pixels(height, width, trimmed_tree)
-        stream.close()
 
-        print('Read %d bytes.' % stream.bytes_read)
-        print('Image size: (height=%d, width=%d)' % (height, width))
+        # decode image dimensions
+        height, width = decoder.decode_header()
+        stream.flush()
+        size_header = stream.bytes_read
+        print('* Header: %d bytes' % size_header)
+
+        # decode Huffman table
+        tree = decoder.decode_tree()
+        stream.flush()
+        size_tree = stream.bytes_read - size_header
+        print('* Tree: %d bytes' % size_tree)    
+
+        # decode image pixel data
+        image = decoder.decode_pixels(height, width, tree)
+        stream.close()
+        size_pixels = stream.bytes_read - size_tree - size_header
+        print('* Pixels: %d bytes' % size_pixels)
+
+        size_read = stream.bytes_read
+        print('Decompressed %d bytes.' % size_read)
+        print('Image dimensions: (height=%dpx, width=%dpx)' % (height, width))
         image.save(out_file_name)
+        size_raw = raw_size(height, width)
+        print('RAW size: %d bytes' % size_raw)
+        space_expand = 100 * float(size_raw / size_read - 1)
+        print('Memory expanded by %0.2f' % (space_expand), '%.')
 
 # estimate number of bytes to be compressed
 def compressed_size(counts, codes):
