@@ -1,53 +1,73 @@
 from collections import Counter
-from itertools import chain
 
+# count the frequency of each channel intensity of pixels in the image
 def count_symbols(image):
-    pixels = image.getdata()
-    values = chain.from_iterable(pixels)
-    counts = Counter(values).items()
-    # return sorted(counts, key=lambda x:x[::-1])
-    return counts
+    pixels = image.getdata() # get the RGB values for each pixel
+    intensities = get_intensities(pixels) # get list of intensity values in RGB channels
+    frequencies = count_frequencies(intensities) # count frequency of each intensity value
+    return frequencies
 
+# create a iterable of (flattened) intensity values (R G B)
+def get_intensities(pixels):
+    for pixel in pixels:
+        for channel in pixel:
+            yield channel
+
+# count how frequent each intensity value appears
+def count_frequencies(intensities):
+    frequencies = Counter(intensities).items()
+    return sorted(frequencies, key=lambda x:x[::-1])
+
+# generate an optimal huffman tree
 def build_tree(counts) :
-    nodes = [entry[::-1] for entry in counts] # Reverse each (symbol,count) tuple
+    nodes = [entry[::-1] for entry in counts] # reverse each (symbol,count) tuple
     while len(nodes) > 1 :
-        leastTwo = tuple(nodes[0:2]) # get the 2 to combine
-        theRest = nodes[2:] # all the others
-        combFreq = leastTwo[0][0] + leastTwo[1][0]  # the branch points freq
-        nodes = theRest + [(combFreq, leastTwo)] # add branch point to the end
-        nodes.sort(key=lambda t: t[0]) # sort it into place
-    return nodes[0] # Return the single tree inside the list
+        least_two = tuple(nodes[0:2]) # get the 2 nodes to combine
+        sum_freq = least_two[0][0] + least_two[1][0]
+        branch = [(sum_freq, least_two)] # combine least two nodes
+        nodes = nodes[2:] + branch # add combined node (branch) back into nodes
+        nodes.sort(key=lambda t: t[0]) # sort nodes again
+    tree = trim_tree(nodes[0]) # remove frequency values from tree
+    return tree 
 
+# remove the frequency values from each node
 def trim_tree(tree) :
-    p = tree[1] # Ignore freq count in [0]
-    if type(p) is tuple: # Node, trim left then right and recombine
-        return (trim_tree(p[0]), trim_tree(p[1]))
-    return p # Leaf, just return it
+    t = tree[1] # ignore freq count in [0]
+    if type(t) is tuple: # if branch
+        trim_left = trim_tree(t[0]) # trim left branch
+        trim_right = trim_tree(t[1]) # trim right branch
+        return (trim_left, trim_right) # recombine tree
+    return t # else, return leaf
 
-def assign_codes_impl(codes, node, pat):
-    if type(node) == tuple:
-        assign_codes_impl(codes, node[0], pat + [0]) # Branch point. Do the left branch
-        assign_codes_impl(codes, node[1], pat + [1]) # then do the right branch.
-    else:
-        codes[node] = pat # A leaf. set its code
-
-def assign_codes(tree):
+# assign a unique binary pattern to each leaf in the tree
+def assign_binary_patterns(tree):
     codes = {}
-    assign_codes_impl(codes, tree, [])
+    pattern = []
+    assign_binary_patterns_rec(codes, tree, pattern)
     return codes
 
-def to_binary_list(n):
-    """Convert integer into a list of bits"""
-    return [n] if (n <= 1) else to_binary_list(n >> 1) + [n & 1]
+def assign_binary_patterns_rec(codes, node, pattern):
+    if type(node) == tuple: # if branch,
+        assign_binary_patterns_rec(codes, node[0], pattern + [0]) # assign pattern to left branch
+        assign_binary_patterns_rec(codes, node[1], pattern + [1]) # assign pattern to left branch
+    else:
+        codes[node] = pattern # else, assign pattern to leaf
 
-def from_binary_list(bits):
-    """Convert list of bits into an integer"""
+# convert integer into a binary pattern
+def int_to_binary(n):
+    if (n <= 1):
+        return [n]
+    else:
+        return int_to_binary(n >> 1) + [n & 1]
+
+# convert binary pattern into an integer
+def binary_to_int(pattern):
     result = 0
-    for bit in bits:
+    for bit in pattern:
         result = (result << 1) | bit
     return result
 
-def pad_bits(bits, n):
-    """Prefix list of bits with enough zeros to reach n digits"""
-    assert(n >= len(bits))
-    return ([0] * (n - len(bits)) + bits)
+# zero extend binary pattern (to allow fixed length encoding)
+def pad_bits(pattern, num):
+    assert(num >= len(pattern))
+    return ([0] * (num - len(pattern)) + pattern)
