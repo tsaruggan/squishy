@@ -10,7 +10,7 @@ def count_symbols(image):
 # create a iterable of (flattened) intensity values (R G B)
 def get_intensities(pixels):
     for pixel in pixels:
-        for channel in pixel:
+        for channel in pixel[:3]:
             yield channel
 
 # count how frequent each intensity value appears

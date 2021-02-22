@@ -14,8 +14,8 @@ class Squishy:
         
         print('Compressing "%s" -> "%s"' % (in_file_name, out_file_name))
         image = Image.open(in_file_name)
-        print('Image dimensions: (height=%dpx, width=%dpx)' % (image.height, image.width))
-        size_raw = raw_size(image.height, image.width)
+        print('Image dimensions: %d x %dpx' % (image.width, image.height))
+        size_raw = raw_size(image.width, image.height)
         print('RAW size: %d bytes' % size_raw)
 
         counts = count_symbols(image)
@@ -83,9 +83,9 @@ class Squishy:
 
         size_read = stream.bytes_read
         print('Decompressed %d bytes.' % size_read)
-        print('Image dimensions: (height=%dpx, width=%dpx)' % (height, width))
+        print('Image dimensions: %d x %dpx' % (width, height))
         image.save(out_file_name)
-        size_raw = raw_size(height, width)
+        size_raw = raw_size(width, height)
         print('RAW size: %d bytes' % size_raw)
         space_expand = 100 * float(size_raw / size_read - 1)
         print('Memory expanded by %0.2f' % (space_expand), '%.')
