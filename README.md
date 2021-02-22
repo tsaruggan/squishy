@@ -17,15 +17,15 @@ squishy.compress('octopus.jpg')
 ```
 ```
 Compressing "octopus.jpg" -> "octopus.bin"
-Image shape: (height=1024, width=1536)
-RAW image size: 4718596 bytes
-Estimated size: 3944984 bytes
+Image dimensions: 1536 x 1024px
+RAW size: 4718596 bytes
+Compressed size: 3943812 bytes
 Writing...
-* Header offset: 0
-* Tree offset: 4
-* Pixel offset: 324
-Wrote 3944984 bytes.
-Compression ratio: 1.20
+* Header: 4 bytes
+* Tree: 320 bytes
+* Pixels: 3943488 bytes
+Compressed 3943812 bytes.
+Memory reduced by 16.42 %.
 ```
 
 The resulting binary code looks something like this:
@@ -48,10 +48,12 @@ print('Images equal = %s' % images_equal('octopus.jpg', 'octopus_new.png'))
 ```
 Decompressing "octopus.bin" -> "octopus_new.png"
 Reading...
-* Header offset: 0
-* Tree offset: 4
-* Pixel offset: 324
-Read 3944984 bytes.
-Image size: (height=1024, width=1536)
+* Header: 4 bytes
+* Tree: 320 bytes
+* Pixels: 3943488 bytes
+Decompressed 3943812 bytes.
+Image dimensions: 1536 x 1024px
+RAW size: 4718596 bytes
+Memory expanded by 19.65 %.
 Images equal = True
 ```
