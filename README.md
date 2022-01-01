@@ -4,7 +4,7 @@ Squishy uses a [Huffman coding](https://en.wikipedia.org/wiki/Huffman_coding) al
 ### Demo:
 For example, we have this image we want to compress:
 
-<img src="https://github.com/tsaruggan/squishy/blob/main/demo/octopus.jpg" alt="octopus" width="400px">
+<img src="https://github.com/tsaruggan/squishy/blob/main/demo/octopus.png" alt="octopus" width="400px">
 
 &nbsp;
 
@@ -13,10 +13,10 @@ We write the following code to compress it into a .bin file:
 from squishy import *
 
 squishy = Squishy()
-squishy.compress('octopus.jpg')
+squishy.compress('octopus.png')
 ```
 ```
-Compressing "octopus.jpg" -> "octopus.bin"
+Compressing "octopus.png" -> "octopus.bin"
 Image dimensions: 1536 x 1024px
 RAW size: 4718596 bytes
 Compressed size: 3943812 bytes
@@ -43,7 +43,7 @@ The resulting binary code looks something like this:
 Later, we can decompress the binary code and confirm the images are identical:
 ```Python
 squishy.decompress('octopus.bin', 'octopus_new.png')
-print('Images equal = %s' % images_equal('octopus.jpg', 'octopus_new.png'))
+print('Images equal = %s' % images_equal('octopus.png', 'octopus_new.png'))
 ```
 ```
 Decompressing "octopus.bin" -> "octopus_new.png"
