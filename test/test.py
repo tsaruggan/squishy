@@ -8,11 +8,12 @@ sys.path.append(parentdir)
 
 from squishy import *
 from huffman import *
+from IO import Input, Output
 
 class TestHuffman:
     def setup_method(self, method):
-        self.yellow = Image.open('yellow.png')
-        self.cyanmagenta = Image.open('cyanmagenta.png')
+        self.yellow = Image.open('sample-images/yellow.png')
+        self.cyanmagenta = Image.open('sample-images/cyanmagenta.png')
 
     def teardown_method(self, method):
         self.yellow = None
