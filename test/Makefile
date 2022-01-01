@@ -1,7 +1,6 @@
 PYTEST = pytest
 TEST = test.py
 
-.PHONY: all test clean
 test: 
 	$(PYTEST) $(TEST)
 	make clean
