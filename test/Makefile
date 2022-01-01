@@ -1,9 +1,11 @@
 PYTEST = pytest
-SRC = test.py
+TEST = test.py
 
+.PHONY: all test clean
 test: 
-	$(PYTEST) $(SRC)
+	$(PYTEST) $(TEST)
+	make clean
+clean:
 	rm -r __pycache__
 	rm -r ../__pycache__
 	rm -r .pytest_cache
-clean:
