@@ -7,10 +7,10 @@ class Encoder:
 
     # convert and store image height and width 
     def encode_header(self, image):
-        height_bits = pad_bits(int_to_binary(image.height), 16)
-        self.bitstream.write_bits(height_bits)    
         width_bits = pad_bits(int_to_binary(image.width), 16)
         self.bitstream.write_bits(width_bits)
+        height_bits = pad_bits(int_to_binary(image.height), 16)
+        self.bitstream.write_bits(height_bits)    
 
     # convert and store Huffman table (information to recreate tree)
     def encode_tree(self, tree):
@@ -36,9 +36,9 @@ class Decoder:
 
     # read and return image height and width
     def decode_header(self):
-        height = binary_to_int(self.bitstream.read_bits(16))
         width = binary_to_int(self.bitstream.read_bits(16))
-        return (height, width)
+        height = binary_to_int(self.bitstream.read_bits(16))
+        return (width, height)
 
     # read and return Huffman table (information to recreate tree)
     def decode_tree(self):
@@ -51,7 +51,7 @@ class Decoder:
             return (left, right)
 
     # read and return pixel channel intensity values 
-    def decode_pixels(self, height, width, tree):
+    def decode_pixels(self, width, height, tree):
         pixels = bytearray()
         for i in range(height * width * 3):
             pixels.append(self.decode_value(tree))

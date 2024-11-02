@@ -64,7 +64,7 @@ class Squishy:
         decoder = Decoder(stream)
 
         # decode image dimensions
-        height, width = decoder.decode_header()
+        width, height = decoder.decode_header()
         stream.flush()
         size_header = stream.bytes_read
         print('* Header: %d bytes' % size_header)
@@ -76,7 +76,7 @@ class Squishy:
         print('* Tree: %d bytes' % size_tree)    
 
         # decode image pixel data
-        image = decoder.decode_pixels(height, width, tree)
+        image = decoder.decode_pixels(width, height, tree)
         stream.close()
         size_pixels = stream.bytes_read - size_tree - size_header
         print('* Pixels: %d bytes' % size_pixels)
