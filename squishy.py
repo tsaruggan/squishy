@@ -117,3 +117,32 @@ def images_equal(file_name_a, file_name_b):
     image_b = Image.open(file_name_b)
     diff = ImageChops.difference(image_a, image_b)
     return diff.getbbox() is None
+
+def main():
+    if len(sys.argv) < 4:
+        print("Error: Insufficient arguments.")
+        display_usage()
+        sys.exit(1)
+
+    operation = sys.argv[1]
+    input_file = sys.argv[2]
+    output_file = sys.argv[3]
+
+    squishy = Squishy()
+
+    if operation == "compress":
+        squishy.compress(input_file, output_file)
+    elif operation == "decompress":
+        squishy.decompress(input_file, output_file)
+    else:
+        print(f"Error: Invalid operation '{operation}'.")
+        display_usage()
+        sys.exit(1)
+
+def display_usage():
+    print("Usage:")
+    print("  To compress:   python3 squishy.py compress <inputImageFile.png> <outputBinaryFile.bin>")
+    print("  To decompress: python3 squishy.py decompress <inputBinaryFile.bin> <outputImageFile.png>")
+
+if __name__ == "__main__":
+    main()
